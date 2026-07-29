@@ -84,6 +84,7 @@ createPostprocessing(
 // Camera
 // ==========================
 
+
 const MAX_YAW =
 THREE.MathUtils.degToRad(8);
 
@@ -100,6 +101,18 @@ const PARALLAX =
 let currentYaw=0;
 
 let currentPitch=0;
+
+
+
+let gyroYaw=0;
+
+let gyroPitch=0;
+
+
+
+let targetYaw=0;
+
+let targetPitch=0;
 
 
 
@@ -121,6 +134,222 @@ new THREE.Vector3();
 
 
 
+
+// ==========================
+// Device Gyro
+// ==========================
+
+
+let gyroEnabled=false;
+
+
+
+function enableGyro(){
+
+
+if(
+!window.DeviceOrientationEvent
+){
+
+return;
+
+}
+
+
+
+window.addEventListener(
+
+"deviceorientation",
+
+(event)=>{
+
+
+let beta =
+event.beta || 0;
+
+
+let gamma =
+event.gamma || 0;
+
+
+
+// 左右旋转
+
+gyroYaw =
+
+THREE.MathUtils.clamp(
+
+-gamma *
+0.015,
+
+-MAX_YAW,
+
+MAX_YAW
+
+);
+
+
+
+// 前后倾斜
+
+gyroPitch =
+
+THREE.MathUtils.clamp(
+
+-(beta-45)*
+0.01,
+
+-MAX_PITCH,
+
+MAX_PITCH
+
+);
+
+
+
+}
+
+);
+
+
+
+gyroEnabled=true;
+
+
+}
+
+
+
+
+
+function createGyroButton(){
+
+
+
+if(
+!window.DeviceOrientationEvent
+){
+
+return;
+
+}
+
+
+
+const button =
+document.createElement(
+"button"
+);
+
+
+
+button.innerHTML=
+"Enable Motion";
+
+
+
+button.style.position=
+"fixed";
+
+
+button.style.bottom=
+"30px";
+
+
+button.style.left=
+"50%";
+
+
+button.style.transform=
+"translateX(-50%)";
+
+
+button.style.zIndex=
+"50";
+
+
+button.style.padding=
+"12px 20px";
+
+
+button.style.border=
+"0";
+
+
+button.style.borderRadius=
+"20px";
+
+
+button.style.background=
+"rgba(255,255,255,0.2)";
+
+
+button.style.color=
+"white";
+
+
+button.style.backdropFilter=
+"blur(10px)";
+
+
+
+button.onclick=
+async()=>{
+
+
+if(
+typeof DeviceOrientationEvent
+.requestPermission
+==="function"
+){
+
+
+const permission =
+await DeviceOrientationEvent
+.requestPermission();
+
+
+
+if(permission!=="granted")
+return;
+
+
+
+}
+
+
+
+enableGyro();
+
+
+button.remove();
+
+
+};
+
+
+
+document.body.appendChild(
+button
+);
+
+
+}
+
+
+
+if(
+window.innerWidth < 768
+){
+
+createGyroButton();
+
+}
+
+
+
+
+
 // ==========================
 // Hover
 // ==========================
@@ -133,10 +362,9 @@ let currentHover=null;
 function hoverOn(object){
 
 setBlackHoleHover(
-    object,
-    true
+object,
+true
 );
-
 
 }
 
@@ -145,12 +373,13 @@ setBlackHoleHover(
 function hoverOff(object){
 
 setBlackHoleHover(
-    object,
-    false
+object,
+false
 );
 
-
 }
+
+
 
 
 
@@ -170,14 +399,19 @@ animate
 
 
 
+const time =
+performance.now()*0.001;
+
+
+
 updateDust(
-performance.now()*0.001
+time
 );
 
 
 
 updateMaterials(
-performance.now()*0.001
+time
 );
 
 
@@ -187,7 +421,31 @@ updateHoverTransitions();
 
 
 
-// Mouse Smooth
+
+
+// ==========================
+// Input
+// ==========================
+
+
+
+if(
+gyroEnabled
+){
+
+
+targetYaw =
+gyroYaw;
+
+
+targetPitch =
+gyroPitch;
+
+
+
+}
+else{
+
 
 mouse.x +=
 
@@ -211,24 +469,31 @@ mouse.y
 
 
 
-
-
-
-// Camera Rotation
-
-
-const targetYaw =
+targetYaw =
 
 -mouse.x *
 MAX_YAW;
 
 
 
-const targetPitch =
+targetPitch =
 
 -mouse.y *
 MAX_PITCH;
 
+
+
+}
+
+
+
+
+
+
+
+// ==========================
+// Smooth Camera
+// ==========================
 
 
 
@@ -271,6 +536,8 @@ currentYaw
 
 
 
+
+
 qPitch.setFromAxisAngle(
 
 new THREE.Vector3(
@@ -282,6 +549,7 @@ new THREE.Vector3(
 currentPitch
 
 );
+
 
 
 
@@ -309,16 +577,60 @@ qPitch
 
 
 
-// Camera Parallax
+// ==========================
+// Parallax
+// ==========================
+
+
+
+let px=0;
+
+let py=0;
+
+
+
+if(
+gyroEnabled
+){
+
+px =
+gyroYaw /
+MAX_YAW *
+PARALLAX;
+
+
+py =
+gyroPitch /
+MAX_PITCH *
+PARALLAX;
+
+
+
+}
+else{
+
+
+px =
+mouse.x *
+PARALLAX;
+
+
+py =
+-mouse.y *
+PARALLAX;
+
+
+}
+
+
+
 
 
 offset.set(
 
-mouse.x *
-PARALLAX,
+px,
 
--mouse.y *
-PARALLAX,
+py,
 
 0
 
@@ -347,6 +659,7 @@ offset
 camera.quaternion.copy(
 viewQuat
 );
+
 
 
 
@@ -391,15 +704,15 @@ let hitObject=null;
 
 
 
-if(intersects.length>0){
+if(
+intersects.length>0
+){
 
 
 hitObject =
 intersects[0].object;
 
 
-
-// 找到Core/Ring父级
 
 while(
 
@@ -422,8 +735,9 @@ hitObject.parent;
 
 
 
-
-if(hitObject!==currentHover){
+if(
+hitObject!==currentHover
+){
 
 
 
@@ -457,10 +771,6 @@ hitObject;
 
 
 
-
-
-// Render
-
 composer.render();
 
 
@@ -470,7 +780,6 @@ composer.render();
 
 
 animate();
-
 
 
 
