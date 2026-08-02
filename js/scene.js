@@ -14,13 +14,13 @@ renderer.setPixelRatio(
     Math.min(window.devicePixelRatio, 2)
 );
 
-renderer.domElement.addEventListener(
-    "pointermove",
-    startMusic,
-    {
-        once:true
-    }
-);
+// renderer.domElement.addEventListener(
+//     "pointermove",
+//     startMusic,
+//     {
+//         once:true
+//     }
+// );
 
 // ===== Color =====
 renderer.outputColorSpace = THREE.SRGBColorSpace;
