@@ -5,7 +5,7 @@ const audio = new Audio(
 audio.loop = true;
 
 // 目标音量（淡入结束时达到的音量）
-const TARGET_VOLUME = 0.35;
+const TARGET_VOLUME = 0.55;
 
 // 淡入时长（毫秒）
 const FADE_DURATION = 2000;
