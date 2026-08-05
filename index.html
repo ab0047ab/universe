@@ -12,19 +12,20 @@
 
     <meta name="robots" content="index, follow, noarchive, nosnippet, noimageindex">
 
+    <link rel="canonical" href="https://www.cybergrave.studio">
+    <meta property="og:title" content="Creative Grave">
+    <meta property="og:image" content="https://www.cybergrave.studio/images/og-preview.jpg">
+    <meta property="og:url" content="https://www.cybergrave.studio">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Creative Grave">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Creative Grave">
+    <meta name="twitter:image" content="https://www.cybergrave.studio/images/og-preview.jpg">
+
     <link rel="stylesheet"
           href="./css/style.css">
 
-    <!--
-        关键点：type="importmap-shim"，不是 "importmap"！
-
-        因为下面 main.js 用的是 type="module-shim"，一旦页面里出现
-        module-shim，es-module-shims 会自动切换进"shim 模式"。
-        在 shim 模式下，它只会去找 type="importmap-shim" 的标签，
-        完全不认标准的 type="importmap"——这两个类型必须成对使用，
-        用混了就等于它压根没找到任何 import map，拿到空映射表，
-        表现就是所有 import "three" 都报 "Unable to resolve specifier"。
-    -->
     <script type="importmap-shim">
     {
       "imports": {
@@ -33,23 +34,12 @@
     }
     </script>
 
-    <!--
-        必须写在 importmap-shim 之后（不能反过来）：
-        这是 async 脚本，一下载完就会立刻执行初始化扫描，
-        如果排在前面，可能在浏览器还没解析到 importmap-shim 时
-        就执行完了，导致拿到空映射表。
-    -->
     <script async src="./js/es-module-shims.js"></script>
 
 </head>
 
 <body>
 
-    <!--
-        type="module-shim"：强制交给 es-module-shims 处理，
-        不让浏览器用自己的原生模块加载器抢先处理（老版本 Safari
-        原生支持 type="module" 但不支持 import map，会抢跑报错）。
-    -->
     <script type="module-shim" src="./js/main.js"></script>
 
 </body>
