@@ -1,5 +1,5 @@
 import * as THREE from "three";
-
+import "./music.js";
 
 import {
     scene,
@@ -51,7 +51,7 @@ import {
     updateMaterials
 } from "./materials.js";
 
-
+// import { bindMusic } from "./music.js";
 
 
 // ==========================
@@ -63,7 +63,7 @@ loadModel(
     camera
 );
 
-
+// bindMusic(renderer);
 
 
 // ==========================
