@@ -16,14 +16,16 @@
           href="./css/style.css">
 
     <!--
-        import map 必须写在 es-module-shims 脚本【之前】。
-        指向自托管的本地文件，不再依赖任何第三方 CDN
-        （jsdelivr / jspm 在部分网络环境下不稳定，之前排查过）。
-        "three/addons/" 这条映射不需要了，因为 loader.js /
-        postprocessing.js 里对 GLTFLoader、EffectComposer 等的
-        引用已经改成了本地相对路径（"./GLTFLoader.js" 这种）。
+        关键点：type="importmap-shim"，不是 "importmap"！
+
+        因为下面 main.js 用的是 type="module-shim"，一旦页面里出现
+        module-shim，es-module-shims 会自动切换进"shim 模式"。
+        在 shim 模式下，它只会去找 type="importmap-shim" 的标签，
+        完全不认标准的 type="importmap"——这两个类型必须成对使用，
+        用混了就等于它压根没找到任何 import map，拿到空映射表，
+        表现就是所有 import "three" 都报 "Unable to resolve specifier"。
     -->
-    <script type="importmap">
+    <script type="importmap-shim">
     {
       "imports": {
         "three": "./js/three.module.js"
@@ -32,11 +34,10 @@
     </script>
 
     <!--
-        必须写在 importmap 之后（不能反过来）：
+        必须写在 importmap-shim 之后（不能反过来）：
         这是 async 脚本，一下载完就会立刻执行初始化扫描，
-        如果排在 importmap 前面，可能在浏览器还没解析到
-        importmap 时就执行完了，导致它拿到空映射表，
-        表现就是所有 import "three" 都报错。
+        如果排在前面，可能在浏览器还没解析到 importmap-shim 时
+        就执行完了，导致拿到空映射表。
     -->
     <script async src="./js/es-module-shims.js"></script>
 
@@ -45,13 +46,9 @@
 <body>
 
     <!--
-        type="module" 改成 type="module-shim"：
-        iOS 16.0~16.3 原生支持 <script type="module">，
-        但不支持 import map。用 type="module" 的话，浏览器会
-        用自己的原生模块加载器抢先处理，跳过 es-module-shims，
-        直接报 "Unable to resolve specifier three" 之类的错。
-        改成 module-shim 后，浏览器不认识这个类型会直接忽略，
-        只有 es-module-shims 会接管解析和执行，避免这个问题。
+        type="module-shim"：强制交给 es-module-shims 处理，
+        不让浏览器用自己的原生模块加载器抢先处理（老版本 Safari
+        原生支持 type="module" 但不支持 import map，会抢跑报错）。
     -->
     <script type="module-shim" src="./js/main.js"></script>
 

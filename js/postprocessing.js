@@ -75,15 +75,15 @@ import * as THREE from "three";
 
 import {
     EffectComposer
-} from "three/addons/postprocessing/EffectComposer.js";
+} from "./EffectComposer.js";
 
 import {
     RenderPass
-} from "three/addons/postprocessing/RenderPass.js";
+} from "./RenderPass.js";
 
 import {
     UnrealBloomPass
-} from "three/addons/postprocessing/UnrealBloomPass.js";
+} from "./UnrealBloomPass.js";
 
 
 function createPostprocessing(scene,camera,renderer){

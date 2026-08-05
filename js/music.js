@@ -1,5 +1,5 @@
 const audio = new Audio(
-    "./audio/bgm.mp3"
+    "./audio/03 Dust.mp3"
 );
 
 audio.loop = true;
