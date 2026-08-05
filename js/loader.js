@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import {
     GLTFLoader
-} from "three/addons/loaders/GLTFLoader.js";
+} from "./GLTFLoader.js";
 
 import {
     basePosition,
